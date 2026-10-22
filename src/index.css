@@ -88,3 +88,22 @@
 .shadow-composer {
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.05);
 }
+
+/* Desktop View Only Gate: Enforces min 1140px viewport for the physical hanging board */
+@media (max-width: 1139px) {
+  .desktop-only-gate {
+    display: flex !important;
+  }
+  .desktop-app-content {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1140px) {
+  .desktop-only-gate {
+    display: none !important;
+  }
+  .desktop-app-content {
+    display: flex !important;
+  }
+}
