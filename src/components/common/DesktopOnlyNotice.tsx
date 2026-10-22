@@ -1,18 +1,7 @@
-import { useState, useEffect } from 'react'
 import { Monitor } from 'lucide-react'
 import { Mascot } from '../mascot/Mascot'
 
 export function DesktopOnlyNotice() {
-    const [windowWidth, setWindowWidth] = useState<number>(
-        typeof window !== 'undefined' ? window.innerWidth : 0
-    )
-
-    useEffect(() => {
-        const handleResize = () => setWindowWidth(window.innerWidth)
-        window.addEventListener('resize', handleResize)
-        return () => window.removeEventListener('resize', handleResize)
-    }, [])
-
     return (
         <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center px-6 py-12 text-center select-none">
             {/* Robot Mascot */}
@@ -33,18 +22,12 @@ export function DesktopOnlyNotice() {
                 </h2>
 
                 {/* Description */}
-                <p className="text-[15px] text-[#7F7F7F] leading-relaxed mb-6">
+                <p className="text-[15px] text-[#7F7F7F] leading-relaxed">
                     This interactive hanging board application is built specifically for desktop displays.
                     Please open this page on a computer or expand your browser window to interact with it.
                 </p>
-
-                {/* Resolution Badge */}
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#E1E1E1] text-[13px] font-medium text-[#7F7F7F]">
-                    <span>Screen width: <strong className="text-[#111827]">{windowWidth}px</strong></span>
-                    <span className="w-1 h-1 rounded-full bg-[#D1D5DB]" />
-                    <span>Requires: <strong className="text-[#111827]">1140px+</strong></span>
-                </div>
             </div>
         </div>
     )
 }
+
