@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #111827;
+  --color-secondary: #7F7F7F;
+  --color-caption: #383838;
+  --color-tertiary: #9F9F9F;
+  --color-default: #D1D5DB;
+  --color-border-default: #D1D5DB;
+  --color-text-primary: #111827;
+  --color-text-secondary: #7F7F7F;
+  --color-text-caption: #383838;
+  --color-text-tertiary: #9F9F9F;
+}
+
+@layer base {
+  :root {
+    /* Colors */
+    --text-primary: #111827;
+    --text-secondary: #7F7F7F;
+    --text-caption: #383838;
+    --border-default: #D1D5DB;
+    --text-tertiary: #9F9F9F;
+
+    /* 59 deg gradient */
+    --gradient-59: linear-gradient(59deg, #8FDAF2 0%, #C9E8F2 35%, #98DFF5 66%, #DFF8FF 100%);
+
+    /* Radii from Design System */
+    --radius-card: 10px;
+    --radius-assistant: 20px;
+    --radius-workspace: 30px;
+    --radius-composer: 37px;
+    --radius-surround: 51px;
+    --radius-user: 50px;
+
+    /* 4px implementation scale */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+  }
+
+  *, ::before, ::after {
+    box-sizing: border-box;
+    letter-spacing: -0.06em;
+    font-feature-settings: "cv11" 1, "ss02" 1;
+  }
+
+  html, body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overflow-x: hidden;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    color: var(--text-primary);
+    background-color: #FFFFFF;
+    margin: 0;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv11" 1, "ss02" 1;
+  }
+}
+
+.bg-rag-gradient {
+  background: linear-gradient(59deg, #8FDAF2 0%, #C9E8F2 35%, #98DFF5 66%, #DFF8FF 100%);
+}
+
+.shadow-composer {
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.05);
+}
