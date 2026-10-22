@@ -4,7 +4,7 @@
 
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.DEV ? '/api' : 'http://localhost:8080')
+  (import.meta.env.DEV ? '/api' : 'https://rag-tutorial.onrender.com')
 
 export interface UploadResponse {
   message: string
@@ -37,7 +37,7 @@ function handleNetworkError(err: unknown, context: string): Error {
       msg.includes('connection refused')
     ) {
       return new Error(
-        `Cannot connect to server at ${API_BASE_URL}. Please ensure your Go backend is running on port 8080.`
+        `Cannot connect to backend server (${API_BASE_URL}). If using Render free tier, the server may take up to 60 seconds to wake up.`
       )
     }
     return err
