@@ -22,7 +22,7 @@ export default function App() {
     uploadProgress,
     cancelUpload,
     isAnswering,
-    errorMessage,
+    errorCode,
     fileInputRef,
     openFileBrowser,
     handleFileUpload,
@@ -111,7 +111,11 @@ export default function App() {
               )}
 
               {screenState === 'error' && (
-                <ErrorCard onRetry={retryUpload} errorMessage={errorMessage ?? undefined} />
+                <ErrorCard
+                  onRetry={retryUpload}
+                  onChooseFile={openFileBrowser}
+                  code={errorCode ?? undefined}
+                />
               )}
             </InnerWorkspace>
           </SurroundBoard>

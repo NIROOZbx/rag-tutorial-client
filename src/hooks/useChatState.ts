@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import type { ScreenState, ChatMessage } from '../types/chat'
-import { uploadDocument, askQuestion } from '../services/api'
+import { uploadDocument, askQuestion, pingBackendHealth } from '../services/api'
+import { AppError, type UploadErrorCode, ERROR_COPY } from '../types/errors'
 
 export function useChatState() {
   const [screenState, setScreenState] = useState<ScreenState>('upload')
@@ -12,11 +13,17 @@ export function useChatState() {
   const [uploadingFile, setUploadingFile] = useState<File | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isAnswering, setIsAnswering] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [errorCode, setErrorCode] = useState<UploadErrorCode | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const lastFileRef = useRef<File | null>(null)
   const uploadTimerRef = useRef<number | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
+
+  // Silently ping backend health on initial load to wake up free-tier instance early
+  useEffect(() => {
+    pingBackendHealth()
+  }, [])
 
   const openFileBrowser = useCallback(() => {
     if (fileInputRef.current) {
@@ -42,20 +49,18 @@ export function useChatState() {
     setUploadProgress(0)
   }, [])
 
-  // Handle uploading PDF to POST /upload with progress
-  const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  // Core upload pipeline with progress simulation and typed error handling
+  const executeUpload = useCallback(async (file: File) => {
+    lastFileRef.current = file
     setUploadingFile(file)
     setIsUploading(true)
     setUploadProgress(15)
-    setErrorMessage(null)
+    setErrorCode(null)
 
     const controller = new AbortController()
     abortControllerRef.current = controller
 
-    // Smoothly step progress while file uploads and server processes chunks
+    // Smooth progress stepper
     uploadTimerRef.current = window.setInterval(() => {
       setUploadProgress((prev) => {
         if (prev < 45) return prev + 12
@@ -66,7 +71,7 @@ export function useChatState() {
     }, 200)
 
     try {
-      const res = await uploadDocument(file)
+      const res = await uploadDocument(file, controller.signal)
 
       if (uploadTimerRef.current) {
         clearInterval(uploadTimerRef.current)
@@ -75,7 +80,7 @@ export function useChatState() {
 
       setUploadProgress(100)
 
-      // Brief delay so user sees 100% completion before switching to chat
+      // Brief delay for user to register 100% before entering workspace
       await new Promise((resolve) => setTimeout(resolve, 350))
 
       setDocumentId(res.document_id)
@@ -88,13 +93,17 @@ export function useChatState() {
         uploadTimerRef.current = null
       }
 
-      // If user aborted via cancel button, do not show error screen
+      // User explicitly clicked Cancel
       if (err instanceof Error && err.name === 'AbortError') {
         return
       }
 
-      const msg = err instanceof Error ? err.message : 'Upload failed'
-      setErrorMessage(msg)
+      if (err instanceof AppError) {
+        setErrorCode(err.code)
+      } else {
+        setErrorCode('UNKNOWN')
+      }
+
       setScreenState('error')
     } finally {
       setIsUploading(false)
@@ -103,7 +112,29 @@ export function useChatState() {
     }
   }, [])
 
-  // Handle asking question via POST /question
+  // Input file change handler
+  const handleFileUpload = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (!file) return
+      executeUpload(file)
+    },
+    [executeUpload]
+  )
+
+  // Retry the upload (either re-runs the last file if retryable, or prompts for a new file)
+  const retryUpload = useCallback(() => {
+    if (lastFileRef.current && errorCode && ERROR_COPY[errorCode]?.retryable) {
+      setScreenState('upload')
+      executeUpload(lastFileRef.current)
+    } else {
+      setScreenState('upload')
+      setErrorCode(null)
+      openFileBrowser()
+    }
+  }, [errorCode, executeUpload, openFileBrowser])
+
+  // Handle asking a question via POST /question
   const handleSendMessage = useCallback(async () => {
     if (!inputMessage.trim() || isAnswering || !documentId) return
 
@@ -134,13 +165,16 @@ export function useChatState() {
         },
       ])
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to retrieve answer'
+      let friendlyError = 'Something unexpected happened. Please try again.'
+      if (err instanceof AppError) {
+        friendlyError = ERROR_COPY[err.code]?.hint || friendlyError
+      }
       setMessages((prev) => [
         ...prev,
         {
           id: `asst-err-${Date.now()}`,
           sender: 'assistant',
-          text: msg,
+          text: friendlyError,
           isError: true,
         },
       ])
@@ -167,13 +201,16 @@ export function useChatState() {
         },
       ])
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to retrieve answer'
+      let friendlyError = 'Something unexpected happened. Please try again.'
+      if (err instanceof AppError) {
+        friendlyError = ERROR_COPY[err.code]?.hint || friendlyError
+      }
       setMessages((prev) => [
         ...prev,
         {
           id: `asst-err-${Date.now()}`,
           sender: 'assistant',
-          text: msg,
+          text: friendlyError,
           isError: true,
         },
       ])
@@ -181,15 +218,6 @@ export function useChatState() {
       setIsAnswering(false)
     }
   }, [messages, documentId, isAnswering])
-
-  const retryUpload = useCallback(() => {
-    setScreenState('upload')
-    setErrorMessage(null)
-    setIsUploading(false)
-    setUploadingFile(null)
-    setUploadProgress(0)
-    openFileBrowser()
-  }, [openFileBrowser])
 
   return {
     screenState,
@@ -204,7 +232,7 @@ export function useChatState() {
     uploadProgress,
     cancelUpload,
     isAnswering,
-    errorMessage,
+    errorCode,
     fileInputRef,
     openFileBrowser,
     handleFileUpload,
