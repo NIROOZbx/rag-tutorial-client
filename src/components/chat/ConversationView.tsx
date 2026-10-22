@@ -43,7 +43,11 @@ export function ConversationView({
             - Normal Assistant bubble: next to robot avatar
           */}
                     {msg.isError ? (
-                        <div className="bg-[#FEF2F2] border border-[#FECACA] rounded-[20px] px-[22px] py-[14px] max-w-[560px] shadow-xs">
+                        <div
+                            data-no-drag="true"
+                            onPointerDown={(e) => e.stopPropagation()}
+                            className="bg-[#FEF2F2] border border-[#FECACA] rounded-[20px] px-[22px] py-[14px] max-w-[560px] shadow-xs cursor-default"
+                        >
                             <div className="flex items-center gap-1.5 text-sm font-medium text-[#DC2626] mb-1">
                                 <AlertCircle className="w-4 h-4 text-[#EF4444] shrink-0 stroke-[2.2]" />
                                 <span>Failed to get answer</span>
@@ -63,7 +67,9 @@ export function ConversationView({
                         </div>
                     ) : (
                         <div
-                            className={`text-[16px]  transition text-[#7F7F7F] border-[0.5px] border-[#E1E1E1] bg-white ${msg.sender === 'user'
+                            data-no-drag="true"
+                            onPointerDown={(e) => e.stopPropagation()}
+                            className={`text-[16px] leading-[19px] transition text-[#7F7F7F] border-[0.5px] border-[#E1E1E1] bg-white cursor-text select-text ${msg.sender === 'user'
                                     ? 'rounded-[50px] px-[25px] py-[10px] max-w-[420px]'
                                     : 'rounded-[20px] px-[25px] py-[15px] max-w-[560px]'
                                 }`}

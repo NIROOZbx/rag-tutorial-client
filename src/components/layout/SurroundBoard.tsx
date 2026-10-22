@@ -3,13 +3,13 @@ import noiseImg from '../../assets/images/noise.png'
 
 interface SurroundBoardProps {
   children: ReactNode
-  onRimPointerDown?: (e: React.PointerEvent) => void
+  onPointerDown?: (e: React.PointerEvent) => void
   isDragging?: boolean
 }
 
 export function SurroundBoard({
   children,
-  onRimPointerDown,
+  onPointerDown,
   isDragging = false,
 }: SurroundBoardProps) {
   return (
@@ -22,10 +22,10 @@ export function SurroundBoard({
     >
       {/* 
         Outer surround: 1140 x 724, 51px radius, 59deg gradient, 25px inset rim with textured noise.
-        Only this outer rim is draggable!
+        Dragging can be initiated from the outer rim, header, or empty workspace background!
       */}
       <div
-        onPointerDown={onRimPointerDown}
+        onPointerDown={onPointerDown}
         className={`relative w-full rounded-[51px] p-[25px] overflow-hidden select-none touch-none ${
           isDragging ? 'cursor-grabbing' : 'cursor-grab'
         }`}
@@ -49,17 +49,11 @@ export function SurroundBoard({
 
         {/* 
           Inner Chat Frame Workspace:
-          Completely isolated from drag physics!
-          - Stops pointerdown from bubbling to the rim drag handler
-          - Normal default cursor, touch enabled, selection enabled
+          Allows dragging from header and empty space, while keeping interactive elements protected.
         */}
         <div
           id="chat-inner-workspace"
-          data-no-drag="true"
-          onPointerDown={(e) => {
-            e.stopPropagation()
-          }}
-          className="relative z-10 w-full h-full cursor-default select-auto touch-auto"
+          className="relative z-10 w-full h-full select-auto touch-auto"
         >
           {children}
         </div>

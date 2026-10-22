@@ -157,18 +157,17 @@ export function useMatterPhysics() {
     }
   }, [])
 
-  // Drag initiation handler: ONLY called when user grabs the outer board rim
-  const handleRimPointerDown = useCallback(
+  // Drag initiation handler: called when user clicks on board (rim, header, or background)
+  const handleBoardPointerDown = useCallback(
     (e: React.PointerEvent) => {
       if (e.button !== 0 && e.pointerType === 'mouse') return
 
-      // Strict check: if click originated inside chat frame or interactive element, ignore
+      // Strict check: if click originated on interactive elements, allow normal interaction
       const target = e.target as HTMLElement | null
       if (
         !target ||
-        target.closest('#chat-inner-workspace') ||
         target.closest('[data-no-drag="true"]') ||
-        target.closest('input, textarea, button, [role="button"], a')
+        target.closest('input, textarea, select, button, [role="button"], a')
       ) {
         return
       }
@@ -214,7 +213,7 @@ export function useMatterPhysics() {
       // Wake up the simulation loop
       stepPhysics()
 
-      // Track pointer anywhere across the window so drag never gets stuck
+      // Track pointer anywhere across the window so drag is fluid and never gets stuck
       const handleWindowPointerMove = (ev: PointerEvent) => {
         if (!isDraggingRef.current) return
         targetDragRef.current = {
@@ -225,6 +224,7 @@ export function useMatterPhysics() {
 
       const handleWindowPointerUp = () => {
         isDraggingRef.current = false
+        setState((prev) => ({ ...prev, isDragging: false }))
         window.removeEventListener('pointermove', handleWindowPointerMove)
         window.removeEventListener('pointerup', handleWindowPointerUp)
         window.removeEventListener('pointercancel', handleWindowPointerUp)
@@ -247,6 +247,6 @@ export function useMatterPhysics() {
 
   return {
     ...state,
-    handleRimPointerDown,
+    handleBoardPointerDown,
   }
 }

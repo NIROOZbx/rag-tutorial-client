@@ -26,7 +26,11 @@ export function Composer({ value, onChange, onSend, disabled }: ComposerProps) {
         - Fill: #FFFFFF
         - Stroke: #CDCDCD, Weight: 0.5px (Inside)
       */}
-      <div data-no-drag="true" className="w-full max-w-[599px] min-h-[40.67px] rounded-[37px] bg-[#FFFFFF] border-[0.5px] border-[#CDCDCD] flex items-center justify-between px-[15px] py-[10px] gap-[10px] shadow-xs">
+      <div
+        data-no-drag="true"
+        onPointerDown={(e) => e.stopPropagation()}
+        className="w-full max-w-[599px] min-h-[40.67px] rounded-[37px] bg-[#FFFFFF] border-[0.5px] border-[#CDCDCD] flex items-center justify-between px-[15px] py-[10px] gap-[10px] shadow-xs cursor-default"
+      >
         <input
           type="text"
           value={value}

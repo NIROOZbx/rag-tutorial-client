@@ -30,7 +30,7 @@ export default function App() {
     retryUpload,
   } = useChatState()
 
-  const { x, y, rotate, isDragging, handleRimPointerDown } = useMatterPhysics()
+  const { x, y, rotate, isDragging, handleBoardPointerDown } = useMatterPhysics()
 
   return (
     <div className="relative min-h-screen bg-white text-[#111827] flex flex-col items-center justify-start overflow-hidden font-sans selection:bg-[#8FDAF2] selection:text-[#111827] pb-16">
@@ -69,7 +69,7 @@ export default function App() {
           willChange: 'transform',
         }}
       >
-        <SurroundBoard onRimPointerDown={handleRimPointerDown} isDragging={isDragging}>
+        <SurroundBoard onPointerDown={handleBoardPointerDown} isDragging={isDragging}>
           <InnerWorkspace
             title={screenState === 'conversation' ? activeFileName : 'Untitled chat'}
             footer={

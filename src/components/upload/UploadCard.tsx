@@ -9,6 +9,8 @@ interface UploadCardProps {
 export function UploadCard({ onBrowseClick, isUploading = false }: UploadCardProps) {
   return (
     <div
+      data-no-drag="true"
+      onPointerDown={(e) => e.stopPropagation()}
       onClick={isUploading ? undefined : onBrowseClick}
       className={`flex flex-col items-center justify-center my-auto transition select-none ${
         isUploading ? 'cursor-wait opacity-90' : 'cursor-pointer'

@@ -40,7 +40,11 @@ export function ErrorCard({ onRetry, errorMessage }: ErrorCardProps) {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center my-auto select-none">
+    <div
+      data-no-drag="true"
+      onPointerDown={(e) => e.stopPropagation()}
+      className="flex flex-col items-center justify-center my-auto select-none cursor-default"
+    >
       {/* 
         Failed State Card:
         - Pure white background, no border

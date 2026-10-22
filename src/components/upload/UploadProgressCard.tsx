@@ -30,7 +30,11 @@ export function UploadProgressCard({
   const isFinished = clampedProgress >= 100
 
   return (
-    <div className="flex flex-col items-center justify-center my-auto select-none">
+    <div
+      data-no-drag="true"
+      onPointerDown={(e) => e.stopPropagation()}
+      className="flex flex-col items-center justify-center my-auto select-none cursor-default"
+    >
       {/* 
         Progress State Card:
         Matches exact reference design:
